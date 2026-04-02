@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chronic Disease Self-Management Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header">
+    <h1>Chronic Disease Self-Management Dashboard</h1>
+    <p class="tagline">Track vitals, activity, and medications in one place.</p>
+  </header>
+
+  <nav class="main-nav" aria-label="Primary">
+    <button type="button" class="nav-btn active" data-section="dashboard">Dashboard</button>
+    <button type="button" class="nav-btn" data-section="entry">Add Daily Entry</button>
+    <button type="button" class="nav-btn" data-section="alerts">Alerts</button>
+    <button type="button" class="nav-btn" data-section="insights">Insights</button>
+    <button type="button" class="nav-btn" data-section="charts">Charts</button>
+    <button type="button" class="nav-btn nav-btn--report" id="btn-nav-report" data-section="report">Report</button>
+  </nav>
+
+  <main id="main-content" class="main-content">
+    <!-- Dashboard -->
+    <section id="section-dashboard" class="section section--active" aria-labelledby="dashboard-heading">
+      <h2 id="dashboard-heading">Dashboard</h2>
+
+      <div id="dashboard-empty" class="empty-state" hidden>
+        <p>No data available</p>
+      </div>
+
+      <div id="dashboard-content" class="dashboard-grid" hidden>
+        <article class="card card--latest">
+          <h3>Latest entry</h3>
+          <dl class="readings-list" id="latest-readings"></dl>
+        </article>
+
+        <article class="card card--averages">
+          <h3>Averages</h3>
+          <dl class="readings-list" id="averages-readings"></dl>
+        </article>
+
+        <article class="card card--trends">
+          <h3>Last 7 entries</h3>
+          <div class="trend-table-wrap">
+            <table class="trend-table" id="trend-table" aria-label="Last seven entries summary"></table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Add daily entry -->
+    <section id="section-entry" class="section" aria-labelledby="entry-heading">
+      <h2 id="entry-heading">Add daily entry</h2>
+      <article class="card card--form">
+        <form id="entry-form" novalidate>
+          <div class="form-row">
+            <label for="field-date">Date <span class="req">*</span></label>
+            <input type="date" id="field-date" name="date" required />
+            <span class="field-error" id="error-date"></span>
+          </div>
+
+          <div class="form-row form-row--split">
+            <div>
+              <label for="field-blood-sugar">Blood sugar (mg/dL) <span class="req">*</span></label>
+              <input type="number" id="field-blood-sugar" name="bloodSugar" min="1" max="600" step="1" required placeholder="e.g. 120" />
+              <span class="field-error" id="error-bloodSugar"></span>
+            </div>
+            <div>
+              <label for="field-weight">Weight (optional) </label>
+              <input type="number" id="field-weight" name="weight" min="0" step="0.1" placeholder="Optional" />
+              <span class="field-error" id="error-weight"></span>
+            </div>
+          </div>
+
+          <div class="form-row form-row--split">
+            <div>
+              <label for="field-systolic">Systolic BP <span class="req">*</span></label>
+              <input type="number" id="field-systolic" name="systolicBP" min="40" max="250" step="1" required />
+              <span class="field-error" id="error-systolicBP"></span>
+            </div>
+            <div>
+              <label for="field-diastolic">Diastolic BP <span class="req">*</span></label>
+              <input type="number" id="field-diastolic" name="diastolicBP" min="20" max="150" step="1" required />
+              <span class="field-error" id="error-diastolicBP"></span>
+            </div>
+          </div>
+
+          <div class="fieldset">
+            <h3 class="fieldset-title">Meals (required)</h3>
+            <div class="form-row">
+              <label for="field-breakfast">Breakfast <span class="req">*</span></label>
+              <textarea id="field-breakfast" name="breakfast" rows="2" required placeholder="e.g. oatmeal, fruit"></textarea>
+              <span class="field-error" id="error-breakfast"></span>
+            </div>
+            <div class="form-row">
+              <label for="field-lunch">Lunch <span class="req">*</span></label>
+              <textarea id="field-lunch" name="lunch" rows="2" required placeholder="e.g. salad, chicken"></textarea>
+              <span class="field-error" id="error-lunch"></span>
+            </div>
+            <div class="form-row">
+              <label for="field-dinner">Dinner <span class="req">*</span></label>
+              <textarea id="field-dinner" name="dinner" rows="2" required placeholder="e.g. rice (small portion), vegetables"></textarea>
+              <span class="field-error" id="error-dinner"></span>
+            </div>
+          </div>
+
+          <div class="fieldset">
+            <h3 class="fieldset-title">Medication</h3>
+            <div class="medication-grid">
+              <div class="checkbox-row checkbox-row--tight">
+                <input type="checkbox" id="field-morning-medicine" name="morningMedicineTaken" checked />
+                <label for="field-morning-medicine">Morning medicine</label>
+              </div>
+              <div class="checkbox-row checkbox-row--tight">
+                <input type="checkbox" id="field-night-medicine" name="nightMedicineTaken" checked />
+                <label for="field-night-medicine">Night medicine</label>
+              </div>
+              <div class="checkbox-row checkbox-row--tight">
+                <input type="checkbox" id="field-insulin" name="insulinIntake" />
+                <label for="field-insulin">Insulin intake</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row form-row--split">
+            <div>
+              <label for="field-activityMinutes">Activity minutes <span class="req">*</span></label>
+              <input type="number" id="field-activityMinutes" name="activityMinutes" min="0" max="1440" step="1" required placeholder="0" />
+              <span class="field-error" id="error-activityMinutes"></span>
+            </div>
+            <div>
+              <label for="field-activityType">Activity type <span class="req">*</span></label>
+              <input type="text" id="field-activityType" name="activityType" required placeholder="e.g. walking, cycling" />
+              <span class="field-error" id="error-activityType"></span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Save entry</button>
+            <p class="form-feedback" id="form-feedback" role="status"></p>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <!-- Alerts -->
+    <section id="section-alerts" class="section" aria-labelledby="alerts-heading">
+      <h2 id="alerts-heading">Alerts</h2>
+      <div id="alerts-empty" class="empty-state" hidden>
+        <p>No data available</p>
+      </div>
+      <div id="alerts-content" class="insights-grid" hidden>
+        <article class="card card--alerts">
+          <h3>Rule-based alerts</h3>
+          <ul class="alert-list" id="alert-list"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Insights -->
+    <section id="section-insights" class="section" aria-labelledby="insights-heading">
+      <h2 id="insights-heading">Insights</h2>
+      <div id="insights-empty" class="empty-state" hidden>
+        <p>No data available</p>
+      </div>
+      <div id="insights-content" class="insights-grid" hidden>
+        <article class="card card--insights">
+          <h3>Patterns &amp; suggestions</h3>
+          <ul class="insight-list" id="insight-list"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section id="section-charts" class="section" aria-labelledby="charts-heading">
+      <h2 id="charts-heading">Charts</h2>
+      <div id="charts-empty" class="empty-state" hidden>
+        <p>No data available</p>
+      </div>
+      <div id="charts-content" class="dashboard-grid" hidden>
+        <article class="card card--chart">
+          <h3>Blood sugar trend (mg/dL)</h3>
+          <div class="chart-container">
+            <canvas id="chart-blood-sugar" aria-label="Blood sugar line chart"></canvas>
+          </div>
+        </article>
+        <article class="card card--chart">
+          <h3>Systolic BP trend (mmHg)</h3>
+          <div class="chart-container">
+            <canvas id="chart-bp-sys" aria-label="Systolic blood pressure line chart"></canvas>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Report (print-focused) -->
+    <section id="section-report" class="section" aria-labelledby="report-heading">
+      <h2 id="report-heading">Report</h2>
+      <article class="card card--report-actions no-print">
+        <p>Generate a printable summary of your last 7 entries, stats, alerts, and hypertension status.</p>
+        <button type="button" class="btn btn--primary" id="btn-generate-report">Generate printable report</button>
+      </article>
+
+      <div id="print-report-area" class="print-report" hidden>
+        <h2 class="print-title">Chronic Disease Self-Management — Summary Report</h2>
+        <p class="print-date" id="print-generated-at"></p>
+
+        <h3>Hypertension status</h3>
+        <p id="print-hypertension-status" class="print-hypertension"></p>
+
+        <h3>Last 7 entries</h3>
+        <table class="report-table" id="report-table"></table>
+
+        <h3>Summary statistics</h3>
+        <ul class="report-summary" id="report-summary"></ul>
+
+        <h3>Alerts</h3>
+        <ul class="report-alerts" id="report-alerts"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="disclaimer">
+      <strong>Disclaimer:</strong> This tool is for self-monitoring only and not a medical diagnosis system.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
